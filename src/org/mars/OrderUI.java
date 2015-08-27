@@ -1,7 +1,6 @@
 package org.mars;
 
 import java.awt.BorderLayout;
-import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -18,10 +17,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
 
 import org.jdatepicker.JDateComponentFactory;
 import org.jdatepicker.JDatePicker;
+
+import com.jgoodies.looks.windows.WindowsLookAndFeel;
 
 public class OrderUI extends JFrame {
 
@@ -39,15 +43,18 @@ public class OrderUI extends JFrame {
 	//
 	//
 	//
-	private String order_title = "生成珍品订单功能";
-	private String audit_title = "Excel对账功能";
+	private String order_title = "鐢熸垚鐝嶅搧璁㈠崟";
+	private String audit_title = "Excel瀵硅处";
 	private JTextField txt_savePath;
+
+	private JLabel process;
+	private JButton btn_gen;
 
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
+		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				try {
 					OrderUI frame = new OrderUI();
@@ -70,6 +77,12 @@ public class OrderUI extends JFrame {
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
 		setContentPane(contentPane);
 		initUI(contentPane);
+		try {
+			UIManager.setLookAndFeel(new WindowsLookAndFeel());
+			SwingUtilities.updateComponentTreeUI(this);
+		} catch (UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void initUI(JComponent parent) {
@@ -78,19 +91,6 @@ public class OrderUI extends JFrame {
 		orderPane.setLayout(null);
 		orderPane.setBounds(41, 34, 313, 194);
 		orderPane.setBorder(BorderFactory.createTitledBorder(order_title));
-
-		/*
-		 * jp = JDateComponentFactory.createJDatePanel(new UtilDateModel( new
-		 * Date())); jp.addActionListener(new ActionListener() { public void
-		 * actionPerformed(ActionEvent e) { try { jtextfield.setText(new
-		 * SimpleDateFormat("yyyy-MM-dd") .format(jp.getModel().getValue())); //
-		 * 如果选中日期后
-		 * ，想消除JDialog，那么jp.addActionListener（new一个ActionListener的实现类，将this对象传递进去
-		 * ）然后调用dispose()方法 } catch (Exception ex) { //
-		 * 该日期控件点击Clear的时候会出异常，因为没有选中日期，如果要消除该异常，那么直接导入源代码，在源码里面改动。 //
-		 * 这里直接简化操作，点击Clear出现异常，直接将jtextfield赋值为"" jtextfield.setText(""); } }
-		 * }); orderPane.add((JPanel) jp);
-		 */
 
 		JPanel jPanel = new JPanel();
 		final JDatePicker picker_begin = new JDateComponentFactory()
@@ -108,7 +108,7 @@ public class OrderUI extends JFrame {
 		JPanel DatePanel = new JPanel();
 		DatePanel.setLayout(new BorderLayout());
 		DatePanel.add(jPanel, BorderLayout.WEST);
-		DatePanel.setBounds(5, 20, 480, 35);
+		DatePanel.setBounds(5, 20, 420, 35);
 
 		orderPane.add(DatePanel);
 
@@ -138,12 +138,12 @@ public class OrderUI extends JFrame {
 		orderPane.add(txt_savePath);
 		txt_savePath.setColumns(10);
 
-		JLabel label = new JLabel("保存到");
+		JLabel label = new JLabel("\u4FDD\u5B58\u5230");
 		label.setBounds(10, 142, 69, 25);
 		orderPane.add(label);
 
 		JButton btn_select = new JButton();
-		btn_select.setText("选择");
+		btn_select.setText("\u9009\u62E9");
 		btn_select.setBounds(402, 141, 62, 30);
 		btn_select.addActionListener(new ActionListener() {
 
@@ -168,9 +168,13 @@ public class OrderUI extends JFrame {
 		 * orderPane.add(jfc);
 		 */
 
-		JButton btnNewButton = new JButton("\u751F\u6210\u8BA2\u5355");
-		btnNewButton.addActionListener(new ActionListener() {
+		btn_gen = new JButton("\u751F\u6210\u8BA2\u5355");
+		btn_gen.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				OrderUI.this.process.setText("");
+				//
+				((JButton) e.getSource()).setEnabled(false);
+
 				System.out.println("in "
 						+ ((GregorianCalendar) picker_begin.getModel()
 								.getValue()).getTime());
@@ -184,16 +188,29 @@ public class OrderUI extends JFrame {
 
 				System.out.println(txt_savePath.getText());
 
-				new OrderWorker(sdate, edate, txt_zpUser.getText(),
-						txt_zpPasswd.getPassword(), txt_savePath.getText())
-						.execute();
+				new OrderWorker(OrderUI.this, sdate, edate, txt_zpUser
+						.getText(), txt_zpPasswd.getPassword(), txt_savePath
+						.getText()).execute();
 			}
 		});
-		btnNewButton.setBounds(233, 73, 131, 63);
-		orderPane.add(btnNewButton);
+		btn_gen.setBounds(233, 73, 131, 63);
+		orderPane.add(btn_gen);
 
 		parent.add(orderPane);
 		parent.add(auditPane);
 
+		process = new JLabel();
+		process.setText("");
+		parent.add(process);
+
 	}
+
+	public JLabel getProcess() {
+		return process;
+	}
+
+	public JButton getBtn_gen() {
+		return btn_gen;
+	}
+
 }
