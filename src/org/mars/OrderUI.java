@@ -123,7 +123,7 @@ public class OrderUI extends JFrame {
 		txt_zpUser.setText("BJ05502");
 		txt_zpPasswd = new JPasswordField();
 		txt_zpPasswd.setBounds(76, 111, 98, 25);
-		txt_zpPasswd.setText("bj66187131");
+		txt_zpPasswd.setText("");
 		orderPane.add(lbl_zpUser);
 		orderPane.add(lbl_zpPasswd);
 		orderPane.add(txt_zpUser);
